@@ -23,14 +23,18 @@ namespace HumaneSociety
 
 		}
 
-		public static string GetPendingAdoptions()
+		public static IQueryable<ClientAnimalJunction> GetPendingAdoptions()
 		{
-			return "";
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			var adoptions = db.ClientAnimalJunctions.Select(a => a);
+			return adoptions;
 		}
 
-		public static string GetUserAdoptionStatus(Client client)
+		public static IQueryable<ClientAnimalJunction> GetUserAdoptionStatus(Client client)
 		{
-			return "";
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			var pendingAdoptions = db.ClientAnimalJunctions.Where(p => p.Client1 == client).Select(p => p);
+			return pendingAdoptions;
 		}
 
 		public static Animal GetAnimalByID(int iD)
@@ -60,9 +64,18 @@ namespace HumaneSociety
 
 		public static Client AddNewClient(string firstName, string lastName, string username, string password, string email, string streetAddress, int zipCode, int state)
 		{
-			//HumaneSocietyDataContext db = new HumaneSocietyDataContext();
-			//Client client = db.Clients.;
-			 
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			Client client = new Client();
+			UserAddress userAddress = new UserAddress();
+			USState uSState = new USState();
+			client.firstName = firstName;
+			client.lastName = lastName;
+			client.userName = username;
+			client.pass = password;
+			client.email = email;
+			userAddress.addessLine1 = streetAddress;
+			userAddress.zipcode = zipCode;
+			
 		}
 
 		public static void UpdateClient(Client client)
@@ -100,9 +113,11 @@ namespace HumaneSociety
 
 		}
 
-		public static string GetShots(Animal animal)
+		public static IQueryable<AnimalShotJunction> GetShots(Animal animal)
 		{
-			return "";
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			var shot = db.AnimalShotJunctions.Where(s => s.Animal == animal).Select(s => s);
+			return shot;
 		}
 
 		public static void UpdateShot(string booster, Animal animal)
@@ -142,12 +157,16 @@ namespace HumaneSociety
 
 		public static Employee EmployeeLogin(string userName, string password)
 		{
-
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			var employeeLogin = db.Employees.Where(e => e.userName == userName && e.pass == password).FirstOrDefault();
+			return employeeLogin;
 		}
 
 		public static Employee RetrieveEmployeeUser(string email, int employeeNumber)
 		{
-
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			var employeeUser = db.Employees.Where(e => e.email == email && e.employeeNumber == employeeNumber).FirstOrDefault();
+			return employeeUser;
 		}
 
 		public static void AddUsernameAndPassword(Employee employee)
