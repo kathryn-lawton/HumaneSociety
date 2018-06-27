@@ -62,7 +62,7 @@ namespace HumaneSociety
 				return states;
 		}
 
-		public static Client AddNewClient(string firstName, string lastName, string username, string password, string email, string streetAddress, int zipCode, int state)
+		public static void AddNewClient(string firstName, string lastName, string username, string password, string email, string streetAddress, int zipCode, int state)
 		{
 			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
 			Client client = new Client();
@@ -74,38 +74,59 @@ namespace HumaneSociety
 			client.pass = password;
 			client.email = email;
 			userAddress.addessLine1 = streetAddress;
+			userAddress.addressLine2 = null;
 			userAddress.zipcode = zipCode;
+			uSState.ID = state;
+			db.SubmitChanges();
 			
 		}
 
 		public static void UpdateClient(Client client)
 		{
-
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			var clientUpdate = (from c in db.Clients where c.ID == client.ID select c).First();
+			clientUpdate = client;
+			db.SubmitChanges();
 		}
 
 		public static void UpdateUsername(Client client)
 		{
-
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			var usernameUpdate = (from c in db.Clients where c.ID == client.ID select c).First();
+			usernameUpdate.userName = client.userName;
+			db.SubmitChanges();
 		}
 
 		public static void UpdateEmail(Client client)
 		{
-
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			var emailUpdate = (from c in db.Clients where c.ID == client.ID select c).First();
+			emailUpdate.email = client.email;
+			db.SubmitChanges();
 		}
 
 		public static void UpdateAddress(Client client)
 		{
-
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			var addressUpdate = (from c in db.Clients where c.ID == client.ID select c).First();
+			addressUpdate.userAddress = client.userAddress;
+			db.SubmitChanges();
 		}
 
 		public static void UpdateFirstName(Client client)
 		{
-
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			var firstNameUpdate = (from c in db.Clients where c.ID == client.ID select c).First();
+			firstNameUpdate.firstName = client.firstName;
+			db.SubmitChanges();
 		}
 
 		public static void UpdateLastName(Client client)
 		{
-
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			var lastNameUpdate = (from c in db.Clients where c.ID == client.ID select c).First();
+			lastNameUpdate.lastName = client.lastName;
+			db.SubmitChanges();
 		}
 
 		public static void UpdateAdoption(bool status, ClientAnimalJunction clientAnimalJunction)
@@ -138,6 +159,7 @@ namespace HumaneSociety
 		public static int GetBreed()
 		{
 			return 0;
+
 		}
 
 		public static int GetDiet()
@@ -152,7 +174,9 @@ namespace HumaneSociety
 
 		public static void AddAnimal(Animal animal)
 		{
-
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			db.Animals.InsertOnSubmit(animal);
+			db.SubmitChanges();
 		}
 
 		public static Employee EmployeeLogin(string userName, string password)
@@ -171,12 +195,17 @@ namespace HumaneSociety
 
 		public static void AddUsernameAndPassword(Employee employee)
 		{
-
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			
 		}
 
 		public static bool CheckEmployeeUserNameExist(string username)
 		{
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			//var userNameExists = db.Employees.Where(u => u.userName == username == true);
+			//return userNameExists;
 			return true;
+			
 		}
 	}
 }

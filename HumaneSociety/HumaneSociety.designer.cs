@@ -281,6 +281,17 @@ namespace HumaneSociety
 			this._Room = default(EntityRef<Room>);
 			OnCreated();
 		}
+
+		public Animal(string[] args)
+		{
+			if(args.Length == 13)
+			{
+				this.ID = int.Parse(args[0]);
+				this.name = args[1];
+				this.breed = (args[2] != null) ? int.Parse(args[2]) : new Nullable<int>();
+
+			}
+		}
 		
 		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
 		public int ID
