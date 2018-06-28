@@ -8,8 +8,9 @@ namespace HumaneSociety
 {
     public static class Query
     {
-		
-        public static Client GetClient(string userName, string password)
+		public delegate void CRUDOperator(Employee employee);
+
+		public static Client GetClient(string userName, string password)
 		{
 			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
 			var resultClient = db.Clients.Where(c => c.userName == userName && c.pass == password).FirstOrDefault();
@@ -17,11 +18,85 @@ namespace HumaneSociety
 			return resultClient;
 		}
 
-		public static void RunEmployeeQueries(Employee employee, string update)
+		public static void RunEmployeeQueries(Employee employee, string crudOperation)
 		{
 			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
-			var employeeUpdate = db.Employees.Where(e => e.ID == employee.ID).First();
-			employeeUpdate = employee;
+
+			CRUDOperator cRUDOperator = setDelegate(crudOperation);
+			cRUDOperator(employee);
+			
+		}
+
+		private static CRUDOperator setDelegate(string crudOperation)
+		{
+			switch (crudOperation)
+			{
+				case "create":
+					return new CRUDOperator(EmployeeCreator);
+				case "read":
+					return new CRUDOperator(EmployeeReader);
+				case "update":
+					return new CRUDOperator(EmployeeUpdater);
+				case "delete":
+					return new CRUDOperator(EmployeeDeleter);
+				default:
+					return new CRUDOperator(EmployeeReader);
+			}
+		}
+
+		public static void EmployeeReader(Employee employee)
+		{
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			var employeeToRead = db.Employees.Where(e => e.employeeNumber == employee.employeeNumber).First();
+			List<string> info = new List<string>()
+			{
+				employeeToRead.firsttName,
+				employeeToRead.lastName,
+				employeeToRead.userName,
+				employeeToRead.pass,
+				employeeToRead.employeeNumber.ToString(),
+				employeeToRead.email,
+			};
+			UserInterface.DisplayUserOptions(info);
+			Console.ReadLine();
+		}
+
+		public static void EmployeeCreator(Employee employee)
+		{
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+
+			employee.firsttName = employee.firsttName;
+			employee.lastName = employee.lastName;
+			employee.pass = employee.pass;
+			employee.employeeNumber = employee.employeeNumber;
+			employee.email = employee.email;
+
+			db.Employees.InsertOnSubmit(employee);
+			db.SubmitChanges();
+
+		}
+
+		public static void EmployeeUpdater(Employee employee)
+		{
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			var employeeUpdate = db.Employees.Where(e => e.firsttName == employee.firsttName && e.employeeNumber == employee.employeeNumber).FirstOrDefault();
+
+			employeeUpdate.firsttName = employee.firsttName;
+			employeeUpdate.lastName = employee.lastName;
+			employeeUpdate.userName = employee.userName;
+			employeeUpdate.employeeNumber = employee.employeeNumber;
+			employeeUpdate.email = employee.email;
+
+			db.Employees.InsertOnSubmit(employeeUpdate);
+			db.SubmitChanges();
+
+		}
+
+		public static void EmployeeDeleter(Employee employee)
+		{
+			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
+			var employeeToDelete = db.Employees.Where(e => e.lastName == employee.lastName && e.employeeNumber == employee.employeeNumber).First();
+			db.Employees.DeleteOnSubmit(employeeToDelete);
 			db.SubmitChanges();
 		}
 
@@ -82,7 +157,7 @@ namespace HumaneSociety
 			userAddress.addessLine1 = streetAddress;
 			userAddress.addressLine2 = null;
 			userAddress.zipcode = zipCode;
-			userAddress.USState = Query.GetStates().Where(s => s.ID == state).First();
+			userAddress.USState = GetStates().Where(s => s.ID == state).First();
 			db.UserAddresses.InsertOnSubmit(userAddress);
 
 			Client client = new Client();
@@ -208,7 +283,67 @@ namespace HumaneSociety
 		public static void EnterUpdate(Animal animal, Dictionary<int,string> updates)
 		{
 			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
-			//loop through keys
+			var updatedAnimal = db.Animals.Where(u => u.ID == animal.ID).First();
+			foreach (KeyValuePair<int, string> item in updates)
+			{
+				if (item.Key == 2)
+				{
+					var breedExists = db.Breeds.Where(b => b.breed1 == item.Value).First();
+					if (breedExists != null)
+					{
+						breedExists.breed1 = item.Value;
+						db.Breeds.InsertOnSubmit(breedExists);
+					}
+					else
+					{
+						var newCategory = UserInterface.EnterSearchCriteria(updates, "1");
+						foreach (KeyValuePair<int, string> species in newCategory)
+						{
+							var categoryExists = db.Catagories.Where(c => c.catagory1 == species.Value).First();
+							if (categoryExists != null)
+							{
+								categoryExists.catagory1 = species.Value;
+								db.Catagories.InsertOnSubmit(categoryExists);
+							}
+							else
+							{
+								updatedAnimal.Breed1.Catagory1.catagory1 = species.Value;
+							}
+							updatedAnimal.Breed1.breed1 = item.Value;
+						}
+					}
+				}
+				else if (item.Key == 3)
+				{
+					updatedAnimal.name = item.Value;
+				}
+				else if (item.Key == 4)
+				{
+					updatedAnimal.age = Convert.ToInt32(item.Value);
+				}
+				else if (item.Key == 5)
+				{
+					updatedAnimal.demeanor = item.Value;
+				}
+				else if (item.Key == 6)
+				{
+					updatedAnimal.kidFriendly = Convert.ToBoolean(item.Value);
+				}
+				else if (item.Key == 7)
+				{
+					updatedAnimal.petFriendly = Convert.ToBoolean(item.Value);
+				}
+				else if (item.Key == 8)
+				{
+					updatedAnimal.weight = Convert.ToInt32(item.Value);
+				}
+               else
+               {
+					break;
+				}
+			}
+			db.Animals.InsertOnSubmit(updatedAnimal);
+			db.SubmitChanges();
 		}
 
 		public static void RemoveAnimal(Animal animal)
@@ -218,15 +353,6 @@ namespace HumaneSociety
 			db.SubmitChanges();
 		}
 
-		//public static int GetBreed()
-		//{
-		//	HumaneSocietyDataContext db = new HumaneSocietyDataContext();
-		//	Breed breed = new Breed();
-		//	Catagory catagory = new Catagory();
-		//	var update = db.Animals.Where(u => u.Breed1.Catagory1.ID == catagory.ID).ToList().First().ID;
-		//	return update;
-		//}
-
 		public static Breed[] GetBreeds()
 		{
 			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
@@ -234,28 +360,12 @@ namespace HumaneSociety
 			return breeds;
 		}
 
-		//public static int GetDiet()
-		//{
-		//	HumaneSocietyDataContext db = new HumaneSocietyDataContext();
-		//	Breed breed = new Breed();
-		//	DietPlan diet = new DietPlan();
-		//	var update = db.Animals.Where(u => u.DietPlan.ID == diet.ID).ToList().First().ID;
-		//	return update;
-		//}
-
 		public static DietPlan[] GetDietPlans()
 		{
 			HumaneSocietyDataContext db = new HumaneSocietyDataContext();
 			var diets = db.DietPlans.ToArray();
 			return diets;
 		}
-
-		//public static int GetLocation()
-		//{
-		//	HumaneSocietyDataContext db = new HumaneSocietyDataContext();
-		//	var update = db.Animals.Where(u => u.Room.ID == 0).ToList().First().ID;
-		//	return update;
-		//}
 
 		public static Room[] GetRooms()
 		{
@@ -304,8 +414,7 @@ namespace HumaneSociety
 			else
 			{
 				return false;
-			}
-			
+			}			
 		}
 
 		public static Animal[] GetAvailableAnimals()

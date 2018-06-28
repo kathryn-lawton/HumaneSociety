@@ -9,6 +9,11 @@ namespace HumaneSociety
     class Customer : User
     {
         Client client;
+
+		public Customer()
+		{
+			this.money = 75;
+		}
         public override void LogIn()
         {
             if (CheckIfNewUser())

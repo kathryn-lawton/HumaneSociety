@@ -10,6 +10,7 @@ namespace HumaneSociety
     {
         protected string name;
         protected string userName;
+		protected int money;
 
         public virtual void LogIn()
         {
