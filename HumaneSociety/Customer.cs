@@ -91,7 +91,7 @@ namespace HumaneSociety
                 List<string> Adoptions = new List<string>();
                 foreach(ClientAnimalJunction junction in pendingAdoptions)
                 {
-                    Adoptions.Add(junction.Animal1.name + " " + junction.Animal1.Breed1.breed1 + " " + junction.approvalStatus);
+                    Adoptions.Add($"{junction.Animal1.ID}. {junction.Animal1.name} {junction.approvalStatus}");
                 }
                 UserInterface.DisplayUserOptions(Adoptions);
                 UserInterface.DisplayUserOptions("press enter to continue");
@@ -102,15 +102,28 @@ namespace HumaneSociety
         private void ApplyForAdoption()
         {
             Console.Clear();
-            UserInterface.DisplayUserOptions("Please enter the ID of the animal you wish to adopt or type reset or exit");
+
+
+			var availableAnimals = Query.GetAvailableAnimals();
+			var animalList = new List<string>();
+
+			animalList.Add("Please enter the ID of the animal you wish to adopt or type reset or exit");
+			foreach (var adoptable in availableAnimals)
+			{
+				animalList.Add($"{adoptable.ID}. {adoptable.name}: {adoptable.adoptionStatus}");
+			}
+			UserInterface.DisplayUserOptions(animalList);
             int iD = UserInterface.GetIntegerData();
+
             var animal = Query.GetAnimalByID(iD);
             UserInterface.DisplayAnimalInfo(animal);
+
             UserInterface.DisplayUserOptions("Would you like to adopt?");
             if ((bool)UserInterface.GetBitData())
             {
                 Query.Adopt(animal, client);
                 UserInterface.DisplayUserOptions("Adoption request sent we will hold $75 adoption fee until processed");
+				Console.ReadKey();
             }
         }
 
@@ -167,6 +180,7 @@ namespace HumaneSociety
             }
             return username;
         }
+
         public static bool CheckForForValue<T>(List<T> items, T value)
         {
             if (items.Contains(value))
@@ -175,6 +189,7 @@ namespace HumaneSociety
             }
             return false;
         }
+
         public static string GetEmail()
         {
             var clients = Query.RetrieveClients();
@@ -199,6 +214,7 @@ namespace HumaneSociety
             }
 
         }
+
         private static int GetState()
         {
             UserInterface.DisplayUserOptions("Please enter your state (abbreviation or full state name");

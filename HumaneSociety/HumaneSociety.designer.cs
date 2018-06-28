@@ -273,6 +273,35 @@ namespace HumaneSociety
 		
 		public Animal()
 		{
+			InitalizeDatabaseFunctions();
+		}
+
+		public Animal(string[] values)
+		{
+			InitalizeDatabaseFunctions();
+
+			if (values.Length == 13)
+			{
+				int intOutput;
+
+				this.ID = int.Parse(values[0]);
+				this.name = values[1];
+				this.breed = int.TryParse(values[2], out intOutput) ? intOutput : new Nullable<int>();
+				this.weight = int.TryParse(values[3], out intOutput) ? intOutput : new Nullable<int>();
+				this.age = int.TryParse(values[4], out intOutput) ? intOutput : new Nullable<int>();
+				this.diet = int.TryParse(values[5], out intOutput) ? intOutput : new Nullable<int>();
+				this.location = int.TryParse(values[6], out intOutput) ? intOutput : new Nullable<int>();
+				this.demeanor = values[7];
+				this.kidFriendly = int.TryParse(values[8], out intOutput) ? intOutput == 1 : new Nullable<bool>();
+				this.petFriendly = int.TryParse(values[9], out intOutput) ? intOutput == 1 : new Nullable<bool>();
+				this.gender = int.TryParse(values[10], out intOutput) ? intOutput == 1 : new Nullable<bool>();
+				this.adoptionStatus = values[11];
+				this.Employee_ID = int.TryParse(values[12], out intOutput) ? intOutput : new Nullable<int>(); 
+			}
+		}
+
+		private void InitalizeDatabaseFunctions()
+		{
 			this._AnimalShotJunctions = new EntitySet<AnimalShotJunction>(new Action<AnimalShotJunction>(this.attach_AnimalShotJunctions), new Action<AnimalShotJunction>(this.detach_AnimalShotJunctions));
 			this._ClientAnimalJunctions = new EntitySet<ClientAnimalJunction>(new Action<ClientAnimalJunction>(this.attach_ClientAnimalJunctions), new Action<ClientAnimalJunction>(this.detach_ClientAnimalJunctions));
 			this._Breed1 = default(EntityRef<Breed>);
@@ -282,17 +311,7 @@ namespace HumaneSociety
 			OnCreated();
 		}
 
-		public Animal(string[] args)
-		{
-			if(args.Length == 13)
-			{
-				this.ID = int.Parse(args[0]);
-				this.name = args[1];
-				this.breed = (args[2] != null) ? int.Parse(args[2]) : new Nullable<int>();
 
-			}
-		}
-		
 		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
 		public int ID
 		{

@@ -8,7 +8,9 @@ namespace HumaneSociety
 {
     class UserEmployee : User
     {
-        Employee employee;
+		public delegate void CRUDFunction();
+			
+		Employee employee;
         
         public override void LogIn()
         {
@@ -75,6 +77,7 @@ namespace HumaneSociety
                 UserInterface.DisplayUserOptions("Enter the number of the adoption you would like to approve");
                 int input = UserInterface.GetIntegerData();
                 ApproveAdoption(adoptions[input - 1]);
+
             }
 
         }
@@ -120,7 +123,16 @@ namespace HumaneSociety
             bool isFinished = false;
             Console.Clear();
             while(!isFinished){
-                List<string> options = new List<string>() { "Animal found:", animal.name, animal.Breed1.Catagory1.catagory1, animal.Breed1.breed1, animal.Breed1.pattern, "Would you like to:", "1. Get Info", "2. Update Info", "3. Check shots", "4. Return" };
+                List<string> options = new List<string>() {
+					"Animal found:", animal.name,
+					// animal.Breed1.Catagory1.catagory1,
+					// animal.Breed1.breed1, animal.Breed1.pattern,
+					"Would you like to:",
+					"1. Get Info",
+					"2. Update Info",
+					"3. Check shots",
+					"4. Return"
+				};
                 UserInterface.DisplayUserOptions(options);
                 int input = UserInterface.GetIntegerData();
                 if (input == 4)
@@ -163,21 +175,44 @@ namespace HumaneSociety
             {
                 shotInfo.Add($"{shot.Shot.name} Date: {shot.dateRecieved}");
             }
+
             if(shotInfo.Count > 0)
             {
                 UserInterface.DisplayUserOptions(shotInfo);
                 if(UserInterface.GetBitData("Would you like to Update shots?"))
                 {
-                    Query.UpdateShot("booster", animal);
+					var currentShots = Query.GetShots(animal);
+					var optionsList = new List<string>();
+					optionsList.Add("Please select a shot to update:");
+					foreach(var shot in currentShots)
+					{
+						string shotName = Query.GetShot(shot.Shot_ID).name;
+						optionsList.Add($"{shot.Shot_ID}. {shotName} - {shot.dateRecieved}");
+					}
+					UserInterface.DisplayUserOptions(optionsList);
+					int shotId = UserInterface.GetIntegerData();
+
+                    Query.UpdateShot(shotId, animal);
                 }
             }
-            else
+
+            if (UserInterface.GetBitData("Would you like to add shots?"))
             {
-                if (UserInterface.GetBitData("Would you like to Update shots?"))
-                {
-                    Query.UpdateShot("booster", animal);
-                }
-            }
+				var optionsList = new List<string>();
+				optionsList.Add("Please select a shot to update:");
+				var availableShots = Query.GetAllShots();
+				foreach (var shot in availableShots)
+				{
+					optionsList.Add($"{shot.ID}. {shot.name}");
+				}
+
+				UserInterface.DisplayUserOptions(optionsList);
+				int shotId = UserInterface.GetIntegerData();
+
+				var selectedShot = Query.GetShot(shotId);
+
+				Query.AddShot(selectedShot, animal);
+			}
             
         }
 
@@ -187,7 +222,7 @@ namespace HumaneSociety
             List<string> options = new List<string>() { "Select Updates: (Enter number and choose finished when finished)", "1. Category", "2. Breed", "3. Name", "4. Age", "5. Demeanor", "6. Kid friendly", "7. Pet friendly", "8. Weight", "9. Finished" };
             UserInterface.DisplayUserOptions(options);
             string input = UserInterface.GetUserInput();
-            if(input.ToLower() == "9" ||input.ToLower() == "finished")
+            if(input.ToLower() == "9" || input.ToLower() == "finished")
             {
                 Query.EnterUpdate(animal, updates);
             }
@@ -212,7 +247,7 @@ namespace HumaneSociety
         private IQueryable<Animal> SearchForAnimal(int iD)
         {
             HumaneSocietyDataContext context = new HumaneSocietyDataContext();
-             var animals = (from data in context.Animals where data.ID == iD select data);
+             var animals = (from data in context.Animals where data.ID == iD select data);	
             return animals;
         }
 
@@ -244,17 +279,51 @@ namespace HumaneSociety
         {
             Console.Clear();
             Animal animal = new Animal();
-            animal.breed = Query.GetBreed();
-            animal.name = UserInterface.GetStringData("name", "the animal's");
+			animal.name = UserInterface.GetStringData("name", "the animal's");
+
+			var breeds = Query.GetBreeds();
+			var breedList = new List<string>();
+			breedList.Add("Please select a breed");
+			foreach(var breed in breeds)
+			{
+				breedList.Add($"{breed.ID}. {breed.breed1}");
+			}
+			UserInterface.DisplayUserOptions(breedList);
+			animal.breed = UserInterface.GetIntegerData();
+
             animal.age = UserInterface.GetIntegerData("age", "the animal's");
             animal.demeanor = UserInterface.GetStringData("demeanor", "the animal's");
             animal.kidFriendly = UserInterface.GetBitData("the animal", "child friendly");
-            animal.petFriendly = UserInterface.GetBitData("the animal", "pet friendly");
-            animal.weight = UserInterface.GetIntegerData("the animal", "the weight of the");
-            animal.diet = Query.GetDiet();
-            animal.location = Query.GetLocation();
-            Query.AddAnimal(animal);
+			animal.petFriendly = UserInterface.GetBitData("the animal", "pet friendly");
+			animal.gender = UserInterface.GetBitData("the animal", "gender");
+			animal.weight = UserInterface.GetIntegerData("the animal", "the weight of the");
+
+			var diets = Query.GetDietPlans();
+			var dietList = new List<string>();
+			dietList.Add("Please select a diet");
+			foreach (var diet in diets)
+			{
+				dietList.Add($"{diet.ID}. {diet.food}");
+			}
+			UserInterface.DisplayUserOptions(dietList);
+			animal.diet = UserInterface.GetIntegerData();
+
+			var rooms = Query.GetRooms();
+			var roomList = new List<string>();
+			roomList.Add("Please select a room");
+			foreach (var room in rooms)
+			{
+				roomList.Add($"{room.ID}. {room.name} in {room.building}");
+			}
+			UserInterface.DisplayUserOptions(roomList);
+			animal.location = UserInterface.GetIntegerData();
+			animal.adoptionStatus = "not adopted";
+
+			Query.AddAnimal(animal);
         }
+
+
+
         protected override void LogInPreExistingUser()
         {
             List<string> options = new List<string>() { "Please log in", "Enter your username (CaSe SeNsItIvE)" };
@@ -276,6 +345,8 @@ namespace HumaneSociety
             }
             
         }
+
+	
         private void CreateNewEmployee()
         {
             Console.Clear();

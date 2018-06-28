@@ -74,7 +74,7 @@ namespace HumaneSociety
         {
             DisplayUserOptions($"Is {target} {parameter}?");
             string input = GetUserInput();
-            if (input.ToLower() == "yes" || input.ToLower() == "y")
+            if (input.ToLower() == "yes" || input.ToLower() == "y" || input.ToLower() == "male")
             {
                 return true;
             }
@@ -131,10 +131,21 @@ namespace HumaneSociety
 
         public static void DisplayAnimalInfo(Animal animal)
         {
-            List<string> info = new List<string>() {"ID: " + animal.ID, animal.name, animal.age + "years old", "Demeanour: " + animal.demeanor, "Kid friendly: " + BoolToYesNo(animal.kidFriendly), "pet friendly: " + BoolToYesNo(animal.petFriendly), $"Location: {animal.Room.name} in {animal.Room.building}", "Weight: " + animal.weight.ToString(),  "Food amoumnt:" + animal.DietPlan.amount};
+            List<string> info = new List<string>()
+			{
+				"ID: " + animal.ID,
+				animal.name,
+				animal.age + "years old",
+				"Demeanour: " + animal.demeanor,
+				// "Kid friendly: " + BoolToYesNo(animal.kidFriendly),
+				// "pet friendly: " + BoolToYesNo(animal.petFriendly),
+				// $"Location: {animal.Room.name} in {animal.Room.building}",
+				"Weight: " + animal.weight.ToString(),
+				// "Food amoumnt:" + animal.DietPlan.amount
+			};
+
             DisplayUserOptions(info);
             Console.ReadLine();
-
         }
 
         private static string BoolToYesNo(bool? input)

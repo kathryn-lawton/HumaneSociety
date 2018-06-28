@@ -63,7 +63,7 @@ namespace HumaneSociety
             }
         }
 
-        private void UpdateEmployee()
+        private void UpdateEmployee() 
         {
             Employee employee = new Employee();
             employee.firsttName = UserInterface.GetStringData("first name", "the employee's");

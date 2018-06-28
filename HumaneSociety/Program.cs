@@ -11,6 +11,11 @@ namespace HumaneSociety
     {
         static void Main(string[] args)
         {
+			// FileReader.ReadFile();
+
+			// FileReader.InitalizeBreedDatabase();
+
+
 			PointOfEntry.Run();
 		}
     }

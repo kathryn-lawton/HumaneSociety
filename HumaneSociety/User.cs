@@ -59,7 +59,7 @@ namespace HumaneSociety
             }
             if (searchParameters.ContainsKey(3))
             {
-                animals = (from data in animals where data.name == searchParameters[3] select data);
+                animals = (from data in animals where data.name.ToLower() == searchParameters[3].ToLower() select data);
             }
             if (searchParameters.ContainsKey(4))
             {
